@@ -3,40 +3,48 @@ import java.util.Random;
 public class Main {
     public static void main(String[] args) {
 
-        // Individuos com seus valores gerado aletoriamente
-        Individual[] populationInitial = new Individual[20];
+        // tamanho da população
+        int np = 20;
+
+        // Numero de geracoes
+        int numGen = 0;
+
+        // Numero maximo de geracoes
+        int maxGen = 10;
+
+        // peso aplicado ao vetor de diferenças (constante de mutação)
+        double F = 0.5;
+
+        // CR: constante de cruzamento
+        Double crossover = 0.8;
 
         // Colocar para gerar valores entre -20 e +20
         int rangeMax = 20;
         int rangeMin = -20;
+
+        // Individuos com seus valores gerado aletoriamente
+        Individual[] populationInitial = new Individual[np];
+
         Random random = new Random();
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < np; i++) {
             Double[] values = new Double[2];
-            values[0] = random.nextDouble() * rangeMax * 2 * rangeMin;
-            values[1] = random.nextDouble() * rangeMax * 2 * rangeMin;
+            values[0] = random.nextDouble() * rangeMax * 2 + rangeMin;
+            values[1] = random.nextDouble() * rangeMax * 2 + rangeMin;
 
             Individual individual = new Individual(values);
             avaliationIndividual(individual);
             populationInitial[i] = individual;
         }
 
-        // Numero de geracoes
-        int numGen = 0;
-
-        // Numero maximo de geracoes
-        int maxGen = 0;
-
-        double F = 0.5;
-
         while (numGen <= maxGen){
-            Individual[] newPopulation = new Individual[20];
+            Individual[] newPopulation = new Individual[np];
 
-            for (int i = 0; i < 20; i++) {
+            for (int i = 0; i < np; i++) {
                 // Indices do vetor população inicial
-                // Ideal que estas variaves sejam diferentes
-                int r1 = random.nextInt(19);
-                int r2 = random.nextInt(19);
-                int r3 = random.nextInt(19);
+                //TODO: Ideal que estas variaves (r1, r2, r3) sejam diferentes
+                int r1 = random.nextInt(np - 1);
+                int r2 = random.nextInt(np - 1);
+                int r3 = random.nextInt(np - 1);
 
                 Individual individual3 = populationInitial[r3];
                 Individual individual2 = populationInitial[r2];
@@ -44,7 +52,7 @@ public class Main {
 
                 Individual u = generateU(individual1, individual2, individual3, F);
 
-                Individual exp = generateExperimental(populationInitial[i], u);
+                Individual exp = generateExperimental(populationInitial[i], u, crossover);
                 avaliationIndividual(exp);
 
                 if(exp.getAvaliation() < populationInitial[i].getAvaliation()){
@@ -54,7 +62,9 @@ public class Main {
                 }
 
             }
+            System.out.printf("Geração %d: População %s \n", numGen, populationInitial.toString());
             populationInitial = newPopulation;
+            numGen++;
         }
     }
 
@@ -71,8 +81,9 @@ public class Main {
         return individualIntemedium;
     }
 
-    public static Individual generateExperimental(Individual individual, Individual u){
-        Double crossover = 0.8;
+    public static Individual generateExperimental(Individual individual, Individual u, Double cr){
+        // CR: constante de cruzamento
+        Double crossover = cr;
 
         Random random  = new Random();
 
@@ -98,6 +109,8 @@ public class Main {
     }
 
     public static void avaliationIndividual(Individual individual){
+
+        // Função de avaliação: f(x1, x2) = x1² + x2²
         Double avaliation = Math.pow(individual.getValues()[0],2) + Math.pow(individual.getValues()[1], 2);
         individual.setAvaliation(avaliation);
     }
