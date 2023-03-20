@@ -10,7 +10,7 @@ public class Main {
         int numGen = 0;
 
         // Numero maximo de geracoes
-        int maxGen = 10;
+        int maxGen = 100;
 
         // peso aplicado ao vetor de diferenças (constante de mutação)
         double F = 0.5;
@@ -62,7 +62,8 @@ public class Main {
                 }
 
             }
-            System.out.printf("Geração %d: População %s \n", numGen, populationInitial.toString());
+            logIndividual(populationInitial, numGen);
+
             populationInitial = newPopulation;
             numGen++;
         }
@@ -113,5 +114,20 @@ public class Main {
         // Função de avaliação: f(x1, x2) = x1² + x2²
         Double avaliation = Math.pow(individual.getValues()[0],2) + Math.pow(individual.getValues()[1], 2);
         individual.setAvaliation(avaliation);
+    }
+
+    public static void logIndividual(Individual[] individuals, int generation){
+        double avaliation = individuals[0].getAvaliation();
+
+        // Melhor individuo possui a avaliação minimizada
+
+        for (int i = 1; i < individuals.length; i++) {
+            if(individuals[i].getAvaliation() < avaliation){
+                avaliation = individuals[i].getAvaliation();
+            }
+        }
+
+        System.out.printf("Geração %d - Melhor individuo: %f \n", generation, avaliation);
+
     }
 }
