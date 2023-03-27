@@ -1,16 +1,18 @@
+import java.util.Arrays;
 
 public class Individual {
 
     // Número de dimensões/variáveis (tamanho do cromossomo)
-    private int d = 2;
-    private Double[] values = new Double[d];
-    private Double avaliation;
+    private Double[] values;
+    private Double[] avaliation;
 
-    public  Individual(){
-
+    public  Individual(int  lengthDimension, int qntAvaliation){
+        values = new Double[lengthDimension];
+        avaliation = new Double[qntAvaliation];
     }
-    public Individual(Double[] values) {
+    public Individual(Double[] values, int qntAvaliation) {
         this.values = values;
+        avaliation = new Double[qntAvaliation];
     }
 
     public Double[] getValues() {
@@ -21,11 +23,18 @@ public class Individual {
         this.values = values;
     }
 
-    public Double getAvaliation() {
+    public Double[] getAvaliation() {
         return avaliation;
     }
 
-    public void setAvaliation(Double avaliation) {
+    public void setAvaliation(Double[] avaliation) {
         this.avaliation = avaliation;
+    }
+
+    @Override
+    public String toString() {
+        return "Individual{" +
+                "avaliation=" + Arrays.toString(avaliation) +
+                '}';
     }
 }
