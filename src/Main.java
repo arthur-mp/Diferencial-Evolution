@@ -1,3 +1,6 @@
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 
 public class Main {
@@ -5,30 +8,24 @@ public class Main {
 
         // tamanho da população
         int np = 20;
-
         // Numero de geracoes
         int numGen = 0;
-
         // Numero maximo de geracoes
         int maxGen = 100;
-
         // peso aplicado ao vetor de diferenças (constante de mutação)
         double F = 0.5;
-
         // CR: constante de cruzamento
         Double crossover = 0.8;
-
         // Colocar para gerar valores entre Min e Max
         int rangeMax = 10;
         int rangeMin = -10;
-
+        // Quantidade de Avaliações
         int qntAvaliations = 3;
-
+        // Dimensão coordenada
         int  lengthDimension = 3;
 
         // Individuos com seus valores gerado aletoriamente
         Individual[] populationInitial = new Individual[np];
-
         Random random = new Random();
         for (int i = 0; i < np; i++) {
             Double[] values = new Double[lengthDimension];
@@ -43,6 +40,9 @@ public class Main {
         Individual[] newPopulation = new Individual[np];
 
         while (numGen <= maxGen){
+
+            List<Individual> intermediatePopulation = new ArrayList<>(List.of(populationInitial));
+
             for (int i = 0; i < np; i++) {
                 // Indices do vetor população inicial
                 //TODO: Ideal que estas variaves (r1, r2, r3) sejam diferentes
@@ -59,17 +59,11 @@ public class Main {
                 Individual exp = generateExperimental(populationInitial[i], u, crossover, lengthDimension, qntAvaliations);
                 avaliationIndividual(exp, qntAvaliations);
 
-                if(dominance(exp, populationInitial[i], qntAvaliations)){
-                    newPopulation[i] = exp;
-                }else if(dominance(populationInitial[i], exp, qntAvaliations)){
-                    newPopulation[i] = populationInitial[i];
-                }else{
-                    Random random1 = new Random();
-                    boolean sort = random1.nextBoolean();
-                    newPopulation[i] = sort ? exp : populationInitial[i];
-                }
+                intermediatePopulation.add(exp);
 
             }
+
+            // ************
 
             populationInitial = newPopulation;
             numGen++;
@@ -160,18 +154,66 @@ public class Main {
 
         individual.setAvaliation(avaliation);
     }
-    public static boolean dominance(Individual a, Individual b, int qntAvaliations){
+    public static boolean dominance(PontoIndividual a, PontoIndividual b){
         // Dominância, A domina B, se:
         // Para toda avaliação de A, tal que, Ai <= Bi
         // Pelo menos exista uma avaliação de A, tal que, Ai < Bi
         boolean dominanceCondition = false;
 
-        for (int i = 0; i < qntAvaliations; i++) {
-            if(a.getAvaliation()[i] > b.getAvaliation()[i]) return false;
-            if(a.getAvaliation()[i] < b.getAvaliation()[i]) dominanceCondition = true;
+        Double[] coordernadasPI1 = a.coordenadas;
+        Double[] coordernadasPI2 = b.coordenadas;
+
+        for (int i = 0; i < coordernadasPI1.length; i++) {
+            if(coordernadasPI2[i] < coordernadasPI1[i]) return false;
+        }
+
+        for (int i = 0; i < coordernadasPI1.length; i++) {
+            if(coordernadasPI1[i] < coordernadasPI2[i]){
+                dominanceCondition = true;
+                break;
+            }
         }
 
         return dominanceCondition;
+    }
+
+    // FNDS
+    public static List<List<Individual>> fnds(List<Individual> listIndividual){
+        List<PontoIndividual> listPontoIndividual = new ArrayList<PontoIndividual>(listIndividual.size());
+
+        for (int i = 0; i < listIndividual.size(); i++) {
+            Individual individual = listIndividual.get(i);
+            PontoIndividual pontoIndividual = new PontoIndividual(individual);
+            listPontoIndividual.add(pontoIndividual);
+        }
+
+        List<PontoIndividual> fronteira1 = new ArrayList<PontoIndividual>();
+
+        //Parte 1
+        for (int i = 0; i < listPontoIndividual.size(); i++) {
+            PontoIndividual p = listPontoIndividual.get(i);
+            p.S = new ArrayList<PontoIndividual>();
+            p.n = 0;
+
+            for (int j = 0; j < listPontoIndividual.size(); j++) {
+                if(i != j){
+                    PontoIndividual q = listPontoIndividual.get(j);
+
+                    if(dominance(p,q)){
+                        p.S.add(q);
+                    }else if(dominance(q,p)){
+                        p.n++;
+                    }
+                }
+            }
+
+            if(p.n == 0){
+                p.rank = 1;
+                fronteira1.add(p);
+            }
+
+        }
+        return null;
     }
 
     public static void logIndividual(Individual[] individuals){
