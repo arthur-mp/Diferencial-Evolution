@@ -187,6 +187,9 @@ public class Main {
             listPontoIndividual.add(pontoIndividual);
         }
 
+        // F
+        List<List<PontoIndividual>> listaFronteiras = new ArrayList<List<PontoIndividual>>();
+
         List<PontoIndividual> fronteira1 = new ArrayList<PontoIndividual>();
 
         //Parte 1
@@ -213,7 +216,51 @@ public class Main {
             }
 
         }
-        return null;
+        listaFronteiras.add(fronteira1);
+
+        // Parte 2
+        int i = 0;
+        List<PontoIndividual> fronteiraI = listaFronteiras.get(i);
+        while(!fronteiraI.isEmpty()){
+            // Q
+            List<PontoIndividual> novaFronteira = new ArrayList<>();
+
+            for (PontoIndividual pontoIndividual: fronteiraI) {
+                // Lista de pontos dominadas por pontoIndividual
+                List<PontoIndividual> Sp = pontoIndividual.S;
+
+                for (PontoIndividual pontoIndividual2 : Sp) {
+                    pontoIndividual2.n--;
+                    if(pontoIndividual2.n == 0){
+                        pontoIndividual2.rank = i + 1;
+                        novaFronteira.add(pontoIndividual2);
+                    }
+                }
+            }
+            i++;
+            fronteiraI = novaFronteira;
+            listaFronteiras.add(novaFronteira);
+        }
+
+        List<List<Individual>> retornoIndividual = new ArrayList<List<Individual>>();
+
+        for (int j = 0; j < listaFronteiras.size(); j++){
+            List<PontoIndividual> fronteiraJ = listaFronteiras.get(j);
+            List<Individual> fronteiraIndividualJ = new ArrayList<Individual>();
+
+            if(!fronteiraJ.isEmpty()){
+                for (int k = 0; k < fronteiraJ.size(); k++) {
+                    PontoIndividual p = fronteiraJ.get(k);
+                    Individual individual = p.getIndividual();
+
+                    fronteiraIndividualJ.add(individual);
+                }
+
+                retornoIndividual.add(fronteiraIndividualJ);
+            }
+        }
+
+        return retornoIndividual;
     }
 
     public static void logIndividual(Individual[] individuals){
