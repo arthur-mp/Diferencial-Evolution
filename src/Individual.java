@@ -6,6 +6,8 @@ public class Individual {
     private Double[] values;
     private Double[] avaliation;
 
+    public double crowdingDistance;
+
     public  Individual(int  lengthDimension, int qntAvaliation){
         values = new Double[lengthDimension];
         avaliation = new Double[qntAvaliation];

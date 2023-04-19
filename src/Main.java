@@ -4,28 +4,30 @@ import java.util.Objects;
 import java.util.Random;
 
 public class Main {
+
+    // tamanho da população
+    public static int np = 20;
+    // Numero de geracoes
+    public static int numGen = 0;
+    // Numero maximo de geracoes
+    public static int maxGen = 100;
+    // peso aplicado ao vetor de diferenças (constante de mutação)
+    public static double F = 0.5;
+    // CR: constante de cruzamento
+    public static Double crossover = 0.8;
+    // Colocar para gerar valores entre Min e Max
+    public static int rangeMax = 10;
+    public static int rangeMin = -10;
+    // Quantidade de Avaliações
+    public static  int qntAvaliations = 3;
+    // Dimensão coordenada
+    public static int  lengthDimension = 3;
+
     public static void main(String[] args) {
 
-        // tamanho da população
-        int np = 20;
-        // Numero de geracoes
-        int numGen = 0;
-        // Numero maximo de geracoes
-        int maxGen = 100;
-        // peso aplicado ao vetor de diferenças (constante de mutação)
-        double F = 0.5;
-        // CR: constante de cruzamento
-        Double crossover = 0.8;
-        // Colocar para gerar valores entre Min e Max
-        int rangeMax = 10;
-        int rangeMin = -10;
-        // Quantidade de Avaliações
-        int qntAvaliations = 3;
-        // Dimensão coordenada
-        int  lengthDimension = 3;
-
         // Individuos com seus valores gerado aletoriamente
-        Individual[] populationInitial = new Individual[np];
+        List<Individual> populationInitial = new ArrayList<>(np);
+
         Random random = new Random();
         for (int i = 0; i < np; i++) {
             Double[] values = new Double[lengthDimension];
@@ -35,13 +37,14 @@ public class Main {
 
             Individual individual = new Individual(values, qntAvaliations);
             avaliationIndividual(individual, qntAvaliations);
-            populationInitial[i] = individual;
+            populationInitial.add(individual);
         }
-        Individual[] newPopulation = new Individual[np];
+
+        List<Individual> newPopulation = new ArrayList<>();
 
         while (numGen <= maxGen){
 
-            List<Individual> intermediatePopulation = new ArrayList<>(List.of(populationInitial));
+            List<Individual> intermediatePopulation = new ArrayList<>(populationInitial);
 
             for (int i = 0; i < np; i++) {
                 // Indices do vetor população inicial
@@ -50,13 +53,13 @@ public class Main {
                 int r2 = random.nextInt(np - 1);
                 int r3 = random.nextInt(np - 1);
 
-                Individual individual3 = populationInitial[r3];
-                Individual individual2 = populationInitial[r2];
-                Individual individual1 = populationInitial[r1];
+                Individual individual3 = populationInitial.get(r3);
+                Individual individual2 = populationInitial.get(r2);
+                Individual individual1 = populationInitial.get(r1);
 
                 Individual u = generateU(individual1, individual2, individual3, F, lengthDimension, qntAvaliations);
 
-                Individual exp = generateExperimental(populationInitial[i], u, crossover, lengthDimension, qntAvaliations);
+                Individual exp = generateExperimental(populationInitial.get(i), u, crossover, lengthDimension, qntAvaliations);
                 avaliationIndividual(exp, qntAvaliations);
 
                 intermediatePopulation.add(exp);
@@ -64,6 +67,25 @@ public class Main {
             }
 
             // ************
+
+            // FNDS
+            List<List<Individual>> fronteiras = fnds(intermediatePopulation);
+
+            for (int i = 0; i < fronteiras.size(); i++) {
+                if(newPopulation.size() >= np) break;
+
+                if(fronteiras.get(i).size() + newPopulation.size() > np){
+                    List<Individual>  individuoCD = new CrowdingDistance().avaliar(fronteiras.get(i));
+                    for (int j = 0; j < individuoCD.size(); j++){
+                        if(newPopulation.size() < np){
+                            newPopulation.add(individuoCD.get(j));
+                        }else break;
+                    }
+
+                }else{
+                    newPopulation.addAll(fronteiras.get(i));
+                }
+            }
 
             populationInitial = newPopulation;
             numGen++;
@@ -263,9 +285,9 @@ public class Main {
         return retornoIndividual;
     }
 
-    public static void logIndividual(Individual[] individuals){
-        for (int i = 1; i < individuals.length; i++) {
-            System.out.println(individuals[i].toString());
+    public static void logIndividual(List<Individual> individuals){
+        for (int i = 1; i < individuals.size(); i++) {
+            System.out.println(individuals.get(i).toString());
         }
 
     }
