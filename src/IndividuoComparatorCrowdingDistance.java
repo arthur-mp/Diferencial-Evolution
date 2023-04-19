@@ -1,6 +1,6 @@
 import java.util.Comparator;
 
-public class IndividuoComparator implements Comparator<Individual> {
+public class IndividuoComparatorCrowdingDistance implements Comparator<Individual> {
 
     @Override
     public int compare(Individual i1, Individual i2) {

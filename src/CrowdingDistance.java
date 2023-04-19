@@ -1,4 +1,3 @@
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -15,7 +14,7 @@ public class CrowdingDistance {
         //TODO: conferir se esses objetivos corresponde ao Avaliation ou ao Values
         int objetivos = individual0.getAvaliation().length;
         for (int i = 0; i < objetivos; i++) {
-            sort(fronteira, objetivos);
+            sort(fronteira, i);
             fronteira.get(0).crowdingDistance = Double.POSITIVE_INFINITY;
             fronteira.get(tamanhoFronteira - 1).crowdingDistance = Double.POSITIVE_INFINITY;
 
@@ -32,7 +31,7 @@ public class CrowdingDistance {
             }
         }
 
-        Collections.sort(fronteira, new IndividuoComparator());
+        Collections.sort(fronteira, new IndividuoComparatorCrowdingDistance());
 
         return fronteira;
     }
