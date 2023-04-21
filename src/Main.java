@@ -1,4 +1,9 @@
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -6,7 +11,7 @@ public class Main {
 
     // tamanho da população
     public static int np = 20;
-    // Numero de geracoes
+    // Numero da geracao
     public static int numGen = 0;
     // Numero maximo de geracoes
     public static int maxGen = 100;
@@ -18,9 +23,9 @@ public class Main {
     public static int rangeMax = 10;
     public static int rangeMin = -10;
     // Quantidade de Avaliações
-    public static  int qntAvaliations = 3;
+    public static  int qntAvaliations = 2;
     // Dimensão coordenada
-    public static int  lengthDimension = 3;
+    public static int  qntVariaveis = 1;
 
     public static void main(String[] args) {
 
@@ -29,22 +34,25 @@ public class Main {
 
         Random random = new Random();
         for (int i = 0; i < np; i++) {
-            Double[] values = new Double[lengthDimension];
-            for (int j = 0; j < lengthDimension; j++) {
+            Double[] values = new Double[qntVariaveis];
+            for (int j = 0; j < qntVariaveis; j++) {
                 values[j] = random.nextDouble() * rangeMax * 2 + rangeMin;
             }
 
             Individual individual = new Individual(values, qntAvaliations);
-            avaliationIndividual(individual, qntAvaliations);
+            avaliationIndividual(individual, qntAvaliations, qntVariaveis);
             populationInitial.add(individual);
         }
 
         List<Individual> newPopulation = new ArrayList<>();
 
+        creatFile(populationInitial, "1");
+
         while (numGen <= maxGen){
 
             List<Individual> intermediatePopulation = new ArrayList<>(populationInitial);
 
+            // Filhos
             for (int i = 0; i < np; i++) {
                 // Indices do vetor população inicial
                 //TODO: Ideal que estas variaves (r1, r2, r3) sejam diferentes
@@ -56,10 +64,10 @@ public class Main {
                 Individual individual2 = populationInitial.get(r2);
                 Individual individual1 = populationInitial.get(r1);
 
-                Individual u = generateU(individual1, individual2, individual3, F, lengthDimension, qntAvaliations);
+                Individual u = generateU(individual1, individual2, individual3, F, qntVariaveis, qntAvaliations);
 
-                Individual exp = generateExperimental(populationInitial.get(i), u, crossover, lengthDimension, qntAvaliations);
-                avaliationIndividual(exp, qntAvaliations);
+                Individual exp = generateExperimental(populationInitial.get(i), u, crossover, qntVariaveis, qntAvaliations);
+                avaliationIndividual(exp, qntAvaliations, qntVariaveis);
 
                 intermediatePopulation.add(exp);
 
@@ -89,9 +97,21 @@ public class Main {
             populationInitial = newPopulation;
             newPopulation = new ArrayList<>();
             numGen++;
+
+            if(numGen == 20){
+                creatFile(populationInitial, String.valueOf(numGen));
+            }
+            if(numGen == 40){
+                creatFile(populationInitial, String.valueOf(numGen));
+            }
+            if(numGen == 60){
+                creatFile(populationInitial, String.valueOf(numGen));
+            }
+            if(numGen == maxGen){
+                creatFile(populationInitial, String.valueOf(numGen));
+            }
         }
 
-        logIndividual(newPopulation);
     }
 
     public static Individual generateU(Individual individual1, Individual individual2, Individual individual3, Double F, int lengthDimension, int qntAvaliations){
@@ -134,46 +154,45 @@ public class Main {
         return filho;
     }
 
-    public static void avaliationIndividual(Individual individual, int qntAvaliations){
+    public static void avaliationIndividual(Individual individual, int qntAvaliations, int qntVariaveis){
 
         Double[] avaliation = new Double[qntAvaliations];
 
-        /*
-        *  Caso 2, 1 variável
-        */
-        // Função de avaliação 1: f(x1) = x²
-        //avaliation[0] = Math.pow(individual.getValues()[0],2);
+        switch (qntVariaveis){
+            case 1:
+                // Função de avaliação 1: f(x1) = x²
+                avaliation[0] = Math.pow(individual.getValues()[0],2);
 
-        // Função de avaliação 2: f(x1) = (x-1)¹
-        //avaliation[1] = Math.pow((individual.getValues()[0]  - 1),2);
+                // Função de avaliação 2: f(x1) = (x-1)¹
+                avaliation[1] = Math.pow((individual.getValues()[0]  - 1),2);
+            break;
 
-        /*
-         *  Caso 3, 2 variáveis
-         */
-        // Função de avaliação 1: f(x1, x2) = x1² + x2²
-        //avaliation[0] = Math.pow(individual.getValues()[0],2) + Math.pow(individual.getValues()[1],2);
+            case 2:
+                // Função de avaliação 1: f(x1, x2) = x1² + x2²
+                avaliation[0] = Math.pow(individual.getValues()[0],2) + Math.pow(individual.getValues()[1],2);
 
-        // Função de avaliação 2: f(x1, x2) = x1² + (x2 - 2)²
-        //avaliation[1] = Math.pow(individual.getValues()[0],2) + Math.pow((individual.getValues()[1] - 2),2);
+                // Função de avaliação 2: f(x1, x2) = x1² + (x2 - 2)²
+                avaliation[1] = Math.pow(individual.getValues()[0],2) + Math.pow((individual.getValues()[1] - 2),2);
+            break;
 
-        /*
-         *  Caso 4, 3 variáveis
-         */
-        // Função de avaliação 1: f(x1, x2, x3) = (x1 - 1)² + x2² + x3²
-        avaliation[0] = Math.pow((individual.getValues()[0] - 1),2)
-                + Math.pow(individual.getValues()[1], 2)
-                + Math.pow(individual.getValues()[2],2);
+            case 3:
+                // Função de avaliação 1: f(x1, x2, x3) = (x1 - 1)² + x2² + x3²
+                avaliation[0] = Math.pow((individual.getValues()[0] - 1),2)
+                        + Math.pow(individual.getValues()[1], 2)
+                        + Math.pow(individual.getValues()[2],2);
 
-        // Função de avaliação 2: f(x1, x2, x3) = x1² + (x2 - 1)² + x3²
-        avaliation[1] = Math.pow(individual.getValues()[0],2)
-                + Math.pow((individual.getValues()[1] - 1), 2)
-                + Math.pow(individual.getValues()[2], 2);
+                // Função de avaliação 2: f(x1, x2, x3) = x1² + (x2 - 1)² + x3²
+                avaliation[1] = Math.pow(individual.getValues()[0],2)
+                        + Math.pow((individual.getValues()[1] - 1), 2)
+                        + Math.pow(individual.getValues()[2], 2);
 
-        // Função de avaliação 3: f(x1, x2, x3) = x1² + x2² + (x3 - 1)²
-        avaliation[2] = Math.pow(individual.getValues()[0],2)
-                + Math.pow(individual.getValues()[1], 2)
-                + Math.pow((individual.getValues()[2] - 1), 2);
+                // Função de avaliação 3: f(x1, x2, x3) = x1² + x2² + (x3 - 1)²
+                avaliation[2] = Math.pow(individual.getValues()[0],2)
+                        + Math.pow(individual.getValues()[1], 2)
+                        + Math.pow((individual.getValues()[2] - 1), 2);
+            break;
 
+        }
         individual.setAvaliation(avaliation);
     }
     public static boolean dominance(PontoIndividual a, PontoIndividual b){
@@ -285,10 +304,41 @@ public class Main {
         return retornoIndividual;
     }
 
-    public static void logIndividual(List<Individual> individuals){
-        for (int i = 1; i < individuals.size(); i++) {
-            System.out.println(individuals.get(i).toString());
-        }
+    public static void creatFile(List<Individual> geracaoIndividuo, String geracao){
+        for (int j = 0; j < 2; j++){
+            String path = "";
+            switch (j){
+                case 0:
+                    path = "./src/files/geracao_"+geracao+"_variaveis.txt";
+                break;
+                case 1:
+                    path = "./src/files/geracao_"+geracao+"_objetivos.txt";
+                break;
+            }
+            File file = new File(path);
+            try{
+                if(!file.exists()){
+                    file.createNewFile();
+                }
 
+                FileWriter fileWriter = new FileWriter(file);
+                BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+
+                for (int i = 0; i < geracaoIndividuo.size(); i++){
+                    if(j == 0){
+                        bufferedWriter.write(Arrays.toString(geracaoIndividuo.get(i).getValues()));
+                        bufferedWriter.newLine();
+                    }else if(j == 1){
+                        bufferedWriter.write(Arrays.toString(geracaoIndividuo.get(i).getAvaliation()));
+                        bufferedWriter.newLine();
+                    }
+                }
+
+                bufferedWriter.close();
+                fileWriter.close();
+            }catch (IOException erro){
+                System.out.printf("Erro: %s", erro.getMessage());
+            }
+        }
     }
 }
