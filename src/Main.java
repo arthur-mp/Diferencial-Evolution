@@ -14,7 +14,7 @@ public class Main {
     // Numero da geracao
     public static int numGen = 0;
     // Numero maximo de geracoes
-    public static int maxGen = 100;
+    public static int maxGen = 1000;
     // peso aplicado ao vetor de diferenças (constante de mutação)
     public static double F = 0.5;
     // CR: constante de cruzamento
@@ -23,9 +23,9 @@ public class Main {
     public static int rangeMax = 10;
     public static int rangeMin = -10;
     // Quantidade de Avaliações
-    public static  int qntAvaliations = 2;
+    public static  int qntAvaliations = 3;
     // Dimensão coordenada
-    public static int  qntVariaveis = 1;
+    public static int  qntVariaveis = 3;
 
     public static void main(String[] args) {
 
@@ -57,8 +57,17 @@ public class Main {
                 // Indices do vetor população inicial
                 //TODO: Ideal que estas variaves (r1, r2, r3) sejam diferentes
                 int r1 = random.nextInt(np - 1);
+                while(r1 == i){
+                    r1 = random.nextInt(np - 1);
+                }
                 int r2 = random.nextInt(np - 1);
+                while(r2 == i || r2 == r1){
+                    r2 = random.nextInt(np - 1);
+                }
                 int r3 = random.nextInt(np - 1);
+                while(r3 == i || r3 == r1 || r3 == r2){
+                    r3 = random.nextInt(np - 1);
+                }
 
                 Individual individual3 = populationInitial.get(r3);
                 Individual individual2 = populationInitial.get(r2);
@@ -98,16 +107,7 @@ public class Main {
             newPopulation = new ArrayList<>();
             numGen++;
 
-            if(numGen == 20){
-                creatFile(populationInitial, String.valueOf(numGen));
-            }
-            if(numGen == 40){
-                creatFile(populationInitial, String.valueOf(numGen));
-            }
-            if(numGen == 60){
-                creatFile(populationInitial, String.valueOf(numGen));
-            }
-            if(numGen == maxGen){
+            if(numGen == 20 || numGen == 40 || numGen == 60 || numGen == 80 || numGen == 100 || numGen == maxGen){
                 creatFile(populationInitial, String.valueOf(numGen));
             }
         }
@@ -127,26 +127,33 @@ public class Main {
         return individualIntemedium;
     }
 
-    public static Individual generateExperimental(Individual individual, Individual u, Double cr, int lengthDimension, int qntAvaliations){
+    public static Individual generateExperimental(Individual individual, Individual u, Double cr, int qntVariaveis, int qntAvaliations){
         // CR: constante de cruzamento
         Double crossover = cr;
 
         Random random  = new Random();
 
-        Individual filho = new Individual(lengthDimension, qntAvaliations);
+        Individual filho = new Individual(qntVariaveis, qntAvaliations);
 
-        Double[] values = new Double[lengthDimension];
+        Double[] values = new Double[qntVariaveis];
 
+        boolean verificaGenes = false;
         // Indices dos genes
-        for (int i = 0; i < lengthDimension; i++) {
+        for (int i = 0; i < qntVariaveis; i++) {
             // 0 < r < 1
             Double r = random.nextDouble();
 
             if(r < crossover){
                 values[i] = individual.getValues()[i];
             }else{
+                verificaGenes = true;
                 values[i] = u.getValues()[i];
             }
+        }
+
+        if(!verificaGenes){
+            int r = random.nextInt(qntVariaveis);
+            values[r] = u.getValues()[r];
         }
 
         filho.setValues(values);
@@ -201,8 +208,8 @@ public class Main {
         // Pelo menos exista uma avaliação de A, tal que, Ai < Bi
         boolean dominanceCondition = false;
 
-        Double[] coordernadasPI1 = a.coordenadas;
-        Double[] coordernadasPI2 = b.coordenadas;
+        Double[] coordernadasPI1 = a.getIndividual().getAvaliation();
+        Double[] coordernadasPI2 = b.getIndividual().getAvaliation();
 
         for (int i = 0; i < coordernadasPI1.length; i++) {
             if(coordernadasPI2[i] < coordernadasPI1[i]) return false;
