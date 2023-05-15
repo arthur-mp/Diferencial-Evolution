@@ -18,14 +18,14 @@ public class Main {
     // peso aplicado ao vetor de diferenças (constante de mutação)
     public static double F = 0.5;
     // CR: constante de cruzamento
-    public static Double crossover = 0.8;
+    public static Double crossover = 0.5;
     // Colocar para gerar valores entre Min e Max
     public static int rangeMax = 10;
     public static int rangeMin = -10;
     // Quantidade de Avaliações
-    public static  int qntAvaliations = 3;
+    public static  int qntAvaliations = 2;
     // Dimensão coordenada
-    public static int  qntVariaveis = 3;
+    public static int  qntVariaveis = 1;
 
     public static void main(String[] args) {
 
