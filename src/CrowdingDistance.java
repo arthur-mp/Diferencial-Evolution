@@ -22,7 +22,7 @@ public class CrowdingDistance {
                 Individual anterior = fronteira.get(j+1);
                 Individual posterior = fronteira.get(j-1);
 
-                double aux = (posterior.getAvaliation()[i] - anterior.getAvaliation()[i])
+                double aux = (anterior.getAvaliation()[i] - posterior.getAvaliation()[i])
                         /
                         (fronteira.get(tamanhoFronteira - 1).getAvaliation()[i] - fronteira.get(0).getAvaliation()[i])
                         ;

@@ -2,7 +2,7 @@ import java.util.List;
 
 public class PontoIndividual {
 
-    Double[] coordenadas;
+    double[] coordenadas;
     // Conjunto dos pontos dominados pelo PontoIndividual
     List<PontoIndividual> S;
     // Número de vezes que o PontoIndividual foi dominado

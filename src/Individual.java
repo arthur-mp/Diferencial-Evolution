@@ -27,15 +27,15 @@ public class Individual {
     }
 
     public Individual(double[]  values, int qntAvaliation, CrossOver crossOver, Mutation mutation){
-        values = values;
-        avaliation = new double[qntAvaliation];
+        this.values = values;
+        this.avaliation = new double[qntAvaliation];
         this.crossOver = crossOver;
         this.mutation = mutation;
     }
 
     public Individual(double[]  values, double[] qntAvaliation, CrossOver crossOver, Mutation mutation){
-        values = values;
-        avaliation = qntAvaliation;
+        this.values = values;
+        this.avaliation = qntAvaliation;
         this.crossOver = crossOver;
         this.mutation = mutation;
     }
@@ -62,7 +62,7 @@ public class Individual {
         double[] varsP1 = this.values;
         double[] varsP2 = p2.values;
 
-        double[][] filhosMat = crossOver.getOffSpring(this.values, p2.values, new double[]{-10, -10}, new double[]{10, 10});
+        double[][] filhosMat = crossOver.getOffSpring(this.values, p2.values, new double[]{-10, -10, -10}, new double[]{10, 10, 10});
 
         Individual f1 = new Individual(this.values, filhosMat[0]);
         Individual f2 = new Individual(this.values, filhosMat[1]);
