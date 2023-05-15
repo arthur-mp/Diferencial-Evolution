@@ -23,9 +23,9 @@ public class Main {
     public static int rangeMax = 10;
     public static int rangeMin = -10;
     // Quantidade de Avaliações
-    public static  int qntAvaliations = 3;
+    public static  int qntAvaliations = 2;
     // Dimensão coordenada
-    public static int  qntVariaveis = 3;
+    public static int  qntVariaveis = 1;
 
     public static void main(String[] args) {
 
@@ -166,16 +166,21 @@ public class Main {
         double[] coordernadasPI1 = a.getIndividual().getAvaliation();
         double[] coordernadasPI2 = b.getIndividual().getAvaliation();
 
-        for (int i = 0; i < coordernadasPI1.length; i++) {
-            if(coordernadasPI2[i] < coordernadasPI1[i]) return false;
+        try{
+            for (int i = 0; i < coordernadasPI1.length; i++) {
+                if(coordernadasPI2[i] < coordernadasPI1[i]) return false;
+            }
+
+            for (int i = 0; i < coordernadasPI1.length; i++) {
+                if(coordernadasPI1[i] < coordernadasPI2[i]){
+                    dominanceCondition = true;
+                    break;
+                }
+            }
+        }catch (Exception e){
+            System.out.println(e);
         }
 
-        for (int i = 0; i < coordernadasPI1.length; i++) {
-            if(coordernadasPI1[i] < coordernadasPI2[i]){
-                dominanceCondition = true;
-                break;
-            }
-        }
 
         return dominanceCondition;
     }

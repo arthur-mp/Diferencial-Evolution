@@ -62,7 +62,7 @@ public class Individual {
         double[] varsP1 = this.values;
         double[] varsP2 = p2.values;
 
-        double[][] filhosMat = crossOver.getOffSpring(this.values, p2.values, new double[]{-10, -10, -10}, new double[]{10, 10, 10});
+        double[][] filhosMat = crossOver.getOffSpring(this.values, p2.values, new double[]{-10, -10}, new double[]{10, 10});
 
         Individual f1 = new Individual(this.values, filhosMat[0]);
         Individual f2 = new Individual(this.values, filhosMat[1]);
