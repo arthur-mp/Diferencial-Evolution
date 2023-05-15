@@ -34,7 +34,7 @@ public class Main {
 
         Random random = new Random();
         for (int i = 0; i < np; i++) {
-            Double[] values = new Double[qntVariaveis];
+            double[] values = new double[qntVariaveis];
             for (int j = 0; j < qntVariaveis; j++) {
                 values[j] = random.nextDouble() * rangeMax * 2 + rangeMin;
             }
@@ -50,37 +50,13 @@ public class Main {
 
         while (numGen <= maxGen){
 
+            // ************
+
+            // Gerando Filhos
             List<Individual> intermediatePopulation = new ArrayList<>(populationInitial);
 
-            // Filhos
-            for (int i = 0; i < np; i++) {
-                // Indices do vetor população inicial
-                //TODO: Ideal que estas variaves (r1, r2, r3) sejam diferentes
-                int r1 = random.nextInt(np - 1);
-                while(r1 == i){
-                    r1 = random.nextInt(np - 1);
-                }
-                int r2 = random.nextInt(np - 1);
-                while(r2 == i || r2 == r1){
-                    r2 = random.nextInt(np - 1);
-                }
-                int r3 = random.nextInt(np - 1);
-                while(r3 == i || r3 == r1 || r3 == r2){
-                    r3 = random.nextInt(np - 1);
-                }
+            makeOffspring(intermediatePopulation, populationInitial);
 
-                Individual individual3 = populationInitial.get(r3);
-                Individual individual2 = populationInitial.get(r2);
-                Individual individual1 = populationInitial.get(r1);
-
-                Individual u = generateU(individual1, individual2, individual3, F, qntVariaveis, qntAvaliations);
-
-                Individual exp = generateExperimental(populationInitial.get(i), u, crossover, qntVariaveis, qntAvaliations);
-                avaliationIndividual(exp, qntAvaliations, qntVariaveis);
-
-                intermediatePopulation.add(exp);
-
-            }
 
             // ************
 
@@ -114,56 +90,35 @@ public class Main {
 
     }
 
-    public static Individual generateU(Individual individual1, Individual individual2, Individual individual3, Double F, int lengthDimension, int qntAvaliations){
-        Individual individualIntemedium = new Individual(lengthDimension, qntAvaliations);
+    public static void makeOffspring(List<Individual> intermediatePopulation, List<Individual> populationInitial){
+        Random random = new Random();
 
-        Double[] values = new Double[lengthDimension];
+        List<Individual> popAux = new ArrayList<Individual>(populationInitial.size());
+        popAux.addAll(populationInitial);
 
-        for (int i = 0; i < lengthDimension; i++) {
-            values[i] = individual3.getValues()[i] + (F * (individual1.getValues()[i] - individual2.getValues()[i]));
-        }
+        while(popAux.size() > 1){
+            int idxR1 = random.nextInt(popAux.size());
+            Individual p1 = popAux.remove(idxR1);
+            int idxR2 = random.nextInt(popAux.size());
+            Individual p2 = popAux.remove(idxR2);
 
-        individualIntemedium.setValues(values);
-        return individualIntemedium;
-    }
-
-    public static Individual generateExperimental(Individual individual, Individual u, Double cr, int qntVariaveis, int qntAvaliations){
-        // CR: constante de cruzamento
-        Double crossover = cr;
-
-        Random random  = new Random();
-
-        Individual filho = new Individual(qntVariaveis, qntAvaliations);
-
-        Double[] values = new Double[qntVariaveis];
-
-        boolean verificaGenes = false;
-        // Indices dos genes
-        for (int i = 0; i < qntVariaveis; i++) {
-            // 0 < r < 1
-            Double r = random.nextDouble();
-
-            if(r < crossover){
-                values[i] = individual.getValues()[i];
-            }else{
-                verificaGenes = true;
-                values[i] = u.getValues()[i];
+            List<Individual> filhos = p1.recombinar(p2);
+            Individual f1 = filhos.get(0);
+            if(random.nextDouble() > 0.9){
+                f1.mutar();
             }
+            Individual f2 = filhos.get(0);
+            if(random.nextDouble() > 0.9){
+                f2.mutar();
+            }
+
+            intermediatePopulation.addAll(filhos);
         }
-
-        if(!verificaGenes){
-            int r = random.nextInt(qntVariaveis);
-            values[r] = u.getValues()[r];
-        }
-
-        filho.setValues(values);
-
-        return filho;
     }
 
     public static void avaliationIndividual(Individual individual, int qntAvaliations, int qntVariaveis){
 
-        Double[] avaliation = new Double[qntAvaliations];
+        double[] avaliation = new double[qntAvaliations];
 
         switch (qntVariaveis){
             case 1:
@@ -208,8 +163,8 @@ public class Main {
         // Pelo menos exista uma avaliação de A, tal que, Ai < Bi
         boolean dominanceCondition = false;
 
-        Double[] coordernadasPI1 = a.getIndividual().getAvaliation();
-        Double[] coordernadasPI2 = b.getIndividual().getAvaliation();
+        double[] coordernadasPI1 = a.getIndividual().getAvaliation();
+        double[] coordernadasPI2 = b.getIndividual().getAvaliation();
 
         for (int i = 0; i < coordernadasPI1.length; i++) {
             if(coordernadasPI2[i] < coordernadasPI1[i]) return false;
